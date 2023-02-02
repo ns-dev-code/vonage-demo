@@ -1,0 +1,54 @@
+import { createSlice, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
+import { RootState } from '../../store';
+import {
+  ConversationApiDto,
+  GetConversationByIdApiResponse,
+  GetConversationsApiResponse,
+  enhancedApi,
+} from './coversationsSlice';
+
+const conversationsAdapter = createEntityAdapter<ConversationApiDto>({});
+const initialState = { ...conversationsAdapter.getInitialState(), selectedConversationId: '' };
+
+export const conversationsLocalSlice = createSlice({
+  name: 'conversationLocalSlice',
+  initialState,
+  reducers: {
+    setConversationId: (state, action) => {
+      state.selectedConversationId = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      enhancedApi.endpoints.getConversations.matchFulfilled,
+      (state, { payload }: { payload: GetConversationsApiResponse }) => {
+        conversationsAdapter.upsertMany(state, payload.conversations);
+        console.log(payload);
+      },
+    );
+    builder.addMatcher(
+      enhancedApi.endpoints.getConversationById.matchFulfilled,
+      (state, { payload }: { payload: GetConversationByIdApiResponse }) => {
+        conversationsAdapter.setOne(state, payload);
+      },
+    );
+  },
+});
+
+export const {
+  selectAll: selectAllConvesations,
+  selectById: selectedConversationById,
+  selectEntities,
+} = conversationsAdapter.getSelectors((state) => state['conversationsLocalSlice'] ?? initialState);
+
+export const { setConversationId } = conversationsLocalSlice.actions;
+
+export const getSelectedConversation = (state: RootState) =>
+  createSelector(
+    (state: RootState) => {
+      return state.conversationLocalSlice.selectedConversationId;
+    },
+    (id) => {
+      return state.conversationLocalSlice.entities[id];
+    },
+  )(state);
