@@ -23,7 +23,6 @@ export const conversationsLocalSlice = createSlice({
       enhancedApi.endpoints.getConversations.matchFulfilled,
       (state, { payload }: { payload: GetConversationsApiResponse }) => {
         conversationsAdapter.upsertMany(state, payload.conversations);
-        console.log(payload);
       },
     );
     builder.addMatcher(

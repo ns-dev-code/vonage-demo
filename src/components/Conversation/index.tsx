@@ -111,6 +111,7 @@ const ConversationComponent = () => {
   const selectedConversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);
   const selecteduser = useSelector(getUserById);
 
+  // Generate Token for user
   useEffect(() => {
     if (selecteduser?.id) {
       generateToken({
@@ -123,6 +124,7 @@ const ConversationComponent = () => {
     if (token) dispatch(setToken(token?.jwt));
   }, [token?.jwt]);
 
+  // Initializing NexmoClient
   const login = async (token: string) => {
     let nexmo = new NexmoClient({});
     const app = await nexmo.createSession(token);
@@ -134,10 +136,10 @@ const ConversationComponent = () => {
   }, [token?.jwt]);
 
   if (isLoading) {
-    return <h1>Loading ...</h1>;
+    return <h2>Loading ...</h2>;
   }
   if (isError) {
-    return <h1>Unable to load Conversations.</h1>;
+    return <h2>Unable to load Conversations.</h2>;
   }
   return (
     <Grid container alignItems={'center'} display='flex' direction='column'>

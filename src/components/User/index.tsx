@@ -6,11 +6,6 @@ import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedUserId } from '../../store/api/vonage/usersLocalSlice';
 
-type User = {
-  id: string;
-  name: string;
-};
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -91,6 +86,10 @@ const CreateUserForm = () => {
   );
 };
 
+type User = {
+  id: string;
+  name: string;
+};
 type UserListPageProps = {
   users: User[];
   handleUser: (user: string) => void;
@@ -118,10 +117,10 @@ const UserComponent = () => {
   const selectedUserId = useSelector((state) => state['usersLocalSlice'].selectedUserId);
 
   if (isLoading) {
-    return <h1>Loading ...</h1>;
+    return <h2>Loading ...</h2>;
   }
   if (isError) {
-    return <h1>Unable to load users.</h1>;
+    return <h2>Unable to load users.</h2>;
   }
   return (
     <Grid container alignItems={'center'} display='flex' direction='column'>

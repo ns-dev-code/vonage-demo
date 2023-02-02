@@ -1,16 +1,18 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { Application, Conversation } from 'nexmo-client';
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, IconButton } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Box } from '@mui/system';
+import { useState, useEffect, useRef } from 'react';
 import { truncate, uniqBy } from 'lodash';
 import moment from 'moment';
-import { RootState, store } from '../../store/store';
-import { getUserById } from '../../store/api/vonage/usersLocalSlice';
+import { RootState } from '../../store/store';
+import { getUserById, setSelectedUserId, setToken } from '../../store/api/vonage/usersLocalSlice';
 import { saveMessages, loadMessagesByConversationId } from '../../store/api/vonage/messageLocalSlice';
-import { getSelectedConversation } from '../../store/api/vonage/conversationsLocalSlice';
+import { getSelectedConversation, setConversationId } from '../../store/api/vonage/conversationsLocalSlice';
 import './index.css';
-import { useNavigate } from 'react-router-dom';
-import { IconButton } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 
 const ChatRoom = () => {
   const user = useSelector(getUserById);
@@ -25,18 +27,19 @@ const ChatRoom = () => {
   const inputRef = useRef<HTMLInputElement>();
   const messageBoxRef = useRef<HTMLDivElement>();
   const navigate = useNavigate();
-
   let typingMessage = useRef('');
-  inputRef?.current?.addEventListener('keypress', (event) => {
-    conversation?.startTyping();
-  });
 
-  inputRef?.current?.addEventListener('keyup', (event) => {
-    conversation?.stopTyping();
-  });
-
+  // Handling Typing event
   useEffect(() => {
     if (conversation) {
+      inputRef?.current?.addEventListener('keypress', (event) => {
+        conversation?.startTyping();
+      });
+
+      inputRef?.current?.addEventListener('keyup', (event) => {
+        conversation?.stopTyping();
+      });
+
       conversation.on('text:typing:on', (data, event) => {
         if (conversation?.me?.id !== data?.memberId) {
           typingMessage.current = data?.userName;
@@ -48,9 +51,10 @@ const ChatRoom = () => {
     }
   }, [conversation]);
 
+  // Updating conversation and logout
   useEffect(() => {
     if (!app) {
-      return navigate('/');
+      return handleLogout();
     }
     if (conversationId && app)
       app?.getConversation(conversationId).then((conv) => {
@@ -60,6 +64,7 @@ const ChatRoom = () => {
       });
   }, [conversationId, app]);
 
+  // This will be triggered on text event
   const onMessage = (sender, message) => {
     const newMessages = {
       key: message.id,
@@ -76,32 +81,52 @@ const ChatRoom = () => {
       dispatch(saveMessages(data));
       return data;
     });
+
     messageBoxRef.current.scrollTo({
-      top: 10000,
+      top: 100000,
       behavior: 'smooth',
     });
   };
 
-  const setInput = (evt) => {
+  const handleInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(evt?.target?.value);
   };
 
-  const sendInput = (evt) => {
+  const submitMessage = () => {
     if (message) {
       conversation
         ?.sendText(message)
-        .then(() => {
-          setMessage(null);
+        .then((res) => {
+          setConversation(res.conversation);
+          setMessage('');
         })
         .catch((err) => {
           console.log({ err });
         });
-      evt.target.previousSibling.value = '';
     }
   };
-  console.log(messages);
+
+  const handleKeyUp = (event) => {
+    if (event.keyCode === 13) {
+      return submitMessage();
+    }
+  };
+
+  const handleLogout = () => {
+    setConversation(null);
+    dispatch(setConversationId(''));
+    dispatch(setSelectedUserId(''));
+    dispatch(setToken(''));
+    navigate('/');
+  };
+
   return (
     <div className='center'>
+      <Box mb={3}>
+        <Button onClick={handleLogout} endIcon={<LogoutIcon />}>
+          Logout
+        </Button>
+      </Box>
       <div className='chat'>
         <div className='header'>
           <div className='name'>
@@ -124,23 +149,38 @@ const ChatRoom = () => {
           {messages.map((message) => {
             if (message.userId === user.id)
               return (
-                <div key={message?.id} className='message me'>
-                  {message?.text}
+                <div>
+                  <div key={message?.id} className='message me'>
+                    {message?.text}
+                  </div>
+                  <div
+                    style={{
+                      margin: '1rem 1rem 1rem auto',
+                      width: 'fit-content',
+                      fontSize: '10px',
+                      position: 'relative',
+                      top: '-10px',
+                      right: '0px',
+                    }}
+                  >
+                    {moment(message.time).format('MM/DD/YY h:mm:ssA')}
+                  </div>
                 </div>
               );
             return (
               <div key={message?.id}>
-                <span style={{ fontSize: '10px', position: 'relative', top: '16px', left: '20px' }}>
+                <div style={{ fontSize: '10px', position: 'relative', top: '16px', left: '20px' }}>
                   {message.sender}
-                </span>
+                </div>
                 <div className='message other'>{message?.text}</div>
-                <span style={{ fontSize: '10px', position: 'relative', top: '-16px', left: '16px' }}>
+                <div style={{ fontSize: '10px', position: 'relative', top: '-16px', left: '16px' }}>
                   {moment(message.time).format('MM/DD/YY h:mm:ssA')}
-                </span>
+                </div>
               </div>
             );
           })}
-          {typingMessage.current && (
+          {/* !Todo not working as expected */}
+          {/* {typingMessage.current && (
             <>
               <span style={{ fontSize: '10px', position: 'relative', top: '16px', left: '20px' }}>
                 {typingMessage.current}
@@ -151,14 +191,20 @@ const ChatRoom = () => {
                 <div className='typing typing-3'></div>
               </div>
             </>
-          )}
+          )} */}
         </div>
         <div className='input'>
-          <input ref={inputRef} onChange={(evt) => setInput(evt)} placeholder='Type your message here!' type='text' />
-          <button onClick={(evt) => sendInput(evt)}>Send</button>
-          {/* <IconButton onClick={(evt) => sendInput(evt)}>
+          <input
+            ref={inputRef}
+            value={message}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyUp}
+            placeholder='Type your message here!'
+            type='text'
+          />
+          <IconButton onClick={submitMessage}>
             <SendIcon />
-          </IconButton> */}
+          </IconButton>
         </div>
       </div>
     </div>

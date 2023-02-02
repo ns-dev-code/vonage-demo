@@ -9,7 +9,6 @@ const injectedRtkApi = api
     endpoints: (build) => ({
       generateToken: build.mutation<TokenApiDto, GetTokenByUserArg>({
         query: (queryArg) => {
-          console.log(queryArg.name);
           return {
             url: `/getJWT`,
             method: 'POST',
