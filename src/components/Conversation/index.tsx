@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Grid } from '@mui/material';
 import styled from '@emotion/styled';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ import { RootState } from '../../store/store';
 import { getUserById, setApp, setToken } from '../../store/api/vonage/usersLocalSlice';
 import { useGenerateTokenMutation } from '../../store/api/vonage/tokenSlice';
 import NexmoClient from 'nexmo-client';
+import { useAuth } from '../../hooks/useApp';
 
 const Form = styled.form`
   display: flex;
@@ -49,13 +50,19 @@ const Select = styled.select`
 const CreateConversationForm = () => {
   const [name, setConversationName] = useState('');
   const { enqueueSnackbar } = useSnackbar();
-  const [createConversation, { isLoading, isError, error }] = useCreateConversationMutation();
+  const [createConversation, { isLoading, isError, isSuccess, error }] = useCreateConversationMutation();
 
   useEffect(() => {
     if (isError) {
       enqueueSnackbar(error['data'].description, { variant: 'error' });
     }
   }, [isError]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      enqueueSnackbar('Conversation Created Successfully', { variant: 'success' });
+    }
+  }, [isSuccess]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -110,6 +117,7 @@ const ConversationComponent = () => {
   const dispatch = useDispatch();
   const selectedConversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);
   const selecteduser = useSelector(getUserById);
+  const { login } = useAuth();
 
   // Generate Token for user
   useEffect(() => {
@@ -121,18 +129,10 @@ const ConversationComponent = () => {
   }, [selecteduser?.id]);
 
   useEffect(() => {
-    if (token) dispatch(setToken(token?.jwt));
-  }, [token?.jwt]);
-
-  // Initializing NexmoClient
-  const login = async (token: string) => {
-    let nexmo = new NexmoClient({});
-    const app = await nexmo.createSession(token);
-    dispatch(setApp(app));
-  };
-
-  useEffect(() => {
-    if (token?.jwt) login(token.jwt);
+    if (token) {
+      dispatch(setToken(token?.jwt));
+      login(token?.jwt);
+    }
   }, [token?.jwt]);
 
   if (isLoading) {

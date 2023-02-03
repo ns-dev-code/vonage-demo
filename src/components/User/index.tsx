@@ -5,6 +5,7 @@ import { useCreateUserMutation, useGetUsersQuery } from '../../store/api/vonage/
 import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedUserId } from '../../store/api/vonage/usersLocalSlice';
+import { RootState } from '../../store/store';
 
 const Form = styled.form`
   display: flex;
@@ -113,8 +114,8 @@ const UserListPage = ({ users, handleUser, selectedUserId }: UserListPageProps) 
 
 const UserComponent = () => {
   const { data: users, isLoading, isError } = useGetUsersQuery({ page_size: 10, order: 'asc' });
+  const selectedUserId = useSelector((state: RootState) => state.usersLocalSlice.selectedUserId);
   const dispatch = useDispatch();
-  const selectedUserId = useSelector((state) => state['usersLocalSlice'].selectedUserId);
 
   if (isLoading) {
     return <h2>Loading ...</h2>;

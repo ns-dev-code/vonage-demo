@@ -13,6 +13,7 @@ import { getUserById, setSelectedUserId, setToken } from '../../store/api/vonage
 import { saveMessages, loadMessagesByConversationId } from '../../store/api/vonage/messageLocalSlice';
 import { getSelectedConversation, setConversationId } from '../../store/api/vonage/conversationsLocalSlice';
 import './index.css';
+import { useAuth } from '../../hooks/useApp';
 
 const ChatRoom = () => {
   const user = useSelector(getUserById);
@@ -21,13 +22,13 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState(uniqBy(loadedMessages, 'key'));
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<Conversation>();
-  const conversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);
   const dispatch = useDispatch();
   const currentConversation = useSelector(getSelectedConversation);
   const inputRef = useRef<HTMLInputElement>();
   const messageBoxRef = useRef<HTMLDivElement>();
   const navigate = useNavigate();
   let typingMessage = useRef('');
+  const { token, logout } = useAuth();
 
   // Handling Typing event
   useEffect(() => {
@@ -53,16 +54,19 @@ const ChatRoom = () => {
 
   // Updating conversation and logout
   useEffect(() => {
-    if (!app) {
-      return handleLogout();
+    if (!currentConversation?.id || !user?.id) {
+      return logout();
     }
-    if (conversationId && app)
-      app?.getConversation(conversationId).then((conv) => {
-        conv.on('text', onMessage);
-        conv.join();
-        setConversation(conv);
-      });
-  }, [conversationId, app]);
+    if (currentConversation?.id) {
+      if (app) {
+        app?.getConversation(currentConversation?.id).then((conv) => {
+          conv.on('text', onMessage);
+          conv.join();
+          setConversation(conv);
+        });
+      }
+    }
+  }, [currentConversation, user, app, token]);
 
   // This will be triggered on text event
   const onMessage = (sender, message) => {
@@ -73,7 +77,7 @@ const ChatRoom = () => {
       text: message.body.text,
       time: message.timestamp,
       id: message.id,
-      conversationId,
+      conversationId: currentConversation.id,
     };
 
     setMessages((prev) => {
