@@ -14,7 +14,7 @@ import { RootState } from '../../store/store';
 import { getUserById, setApp, setToken } from '../../store/api/vonage/usersLocalSlice';
 import { useGenerateTokenMutation } from '../../store/api/vonage/tokenSlice';
 import NexmoClient from 'nexmo-client';
-import { useAuth } from '../../hooks/useApp';
+import { useAuth } from '../../hooks/useAuth';
 
 const Form = styled.form`
   display: flex;

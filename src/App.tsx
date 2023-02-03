@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './hooks/useApp';
+import { useAuth } from './hooks/useAuth';
 
 function App() {
   const userId = useSelector((state: RootState) => state.usersLocalSlice.selectedUserId);

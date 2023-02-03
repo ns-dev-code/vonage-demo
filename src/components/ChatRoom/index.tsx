@@ -13,7 +13,7 @@ import { getUserById, setSelectedUserId, setToken } from '../../store/api/vonage
 import { saveMessages, loadMessagesByConversationId } from '../../store/api/vonage/messageLocalSlice';
 import { getSelectedConversation, setConversationId } from '../../store/api/vonage/conversationsLocalSlice';
 import './index.css';
-import { useAuth } from '../../hooks/useApp';
+import { useAuth } from '../../hooks/useAuth';
 
 const ChatRoom = () => {
   const user = useSelector(getUserById);
@@ -151,7 +151,7 @@ const ChatRoom = () => {
         <div ref={messageBoxRef} className='messages' id='chat'>
           <div className='time'>Today at {moment().format('HH:mm')}</div>
           {messages.map((message) => {
-            if (message.userId === user.id)
+            if (message?.userId === user?.id)
               return (
                 <div>
                   <div key={message?.id} className='message me'>
@@ -167,7 +167,7 @@ const ChatRoom = () => {
                       right: '0px',
                     }}
                   >
-                    {moment(message.time).format('MM/DD/YY h:mm:ssA')}
+                    {moment(message?.time).format('MM/DD/YY h:mm:ssA')}
                   </div>
                 </div>
               );
@@ -183,8 +183,9 @@ const ChatRoom = () => {
               </div>
             );
           })}
+
           {/* !Todo not working as expected */}
-          {/* {typingMessage.current && (
+          {typingMessage?.current && (
             <>
               <span style={{ fontSize: '10px', position: 'relative', top: '16px', left: '20px' }}>
                 {typingMessage.current}
@@ -195,7 +196,7 @@ const ChatRoom = () => {
                 <div className='typing typing-3'></div>
               </div>
             </>
-          )} */}
+          )}
         </div>
         <div className='input'>
           <input
