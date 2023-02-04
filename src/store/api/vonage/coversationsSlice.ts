@@ -7,10 +7,10 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      getConversations: build.query<GetConversationsApiResponse, {}>({
+      getConversations: build.query<GetConversationsApiResponse, GetConversationsApiResponseArg>({
         query: (queryArg) => ({
           url: `/getConversations`,
-          params: {},
+          params: queryArg,
         }),
         providesTags: ['Conversations'],
       }),
@@ -22,7 +22,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/createConversation`,
           method: 'POST',
-          body: queryArg.body,
+          body: queryArg,
         }),
         invalidatesTags: ['Conversations'],
       }),
@@ -35,16 +35,19 @@ export type GetConversationsApiResponse = {
   conversations: ConversationApiDto[];
 };
 
+export type GetConversationsApiResponseArg = {
+  page_size?: number;
+  order?: 'asc' | 'desc';
+};
+
 export type GetConversationByIdApiResponse = /** status 200 When a valid member is found */ ConversationApiDto;
 export type GetConversationByIdArg = {
   coversationId: string;
 };
 
 type CreateConversationApiArg = {
-  body: {
-    name: string;
-    display_name: string;
-  };
+  name: string;
+  display_name: string;
 };
 export type ConversationApiDto = { id: string; name: string };
 

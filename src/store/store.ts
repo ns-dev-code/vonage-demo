@@ -1,9 +1,9 @@
 import { Action, ThunkAction, combineReducers, configureStore } from '@reduxjs/toolkit';
 import storage from 'redux-persist/lib/storage';
+import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import { vonageApi } from './api/vonage/vonageApi';
 import { conversationsLocalSlice } from './api/vonage/conversationsLocalSlice';
 import { usersLocalSlice } from './api/vonage/usersLocalSlice';
-import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import { messagesLocalSlice } from './api/vonage/messageLocalSlice';
 
 const persistConfig = {

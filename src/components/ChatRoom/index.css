@@ -16,6 +16,8 @@ html {
   justify-content: center;
   top: 50%;
   margin-top: 100px;
+  max-width: 100%;
+  margin: 10px;
 }
 
 .pic {
@@ -96,6 +98,7 @@ html {
 }
 
 .chat {
+  max-width: inherit;
   position: relative;
   display: flex;
   flex-direction: column;

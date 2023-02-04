@@ -7,7 +7,7 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      getUsers: build.query<GetUsersApiResponse, { page_size?: number; order?: string }>({
+      getUsers: build.query<GetUsersApiResponse, GetUsersApiResponseArg>({
         query: (queryArg) => ({
           url: `/getUsers`,
           params: queryArg,
@@ -33,6 +33,10 @@ export { injectedRtkApi as enhancedApi };
 
 export type GetUsersApiResponse = {
   users: UserApiDto[];
+};
+export type GetUsersApiResponseArg = {
+  page_size?: number;
+  order?: 'asc' | 'desc';
 };
 
 export type GetUserByIdApiResponse = /** status 200 When a valid member is found */ UserApiDto;

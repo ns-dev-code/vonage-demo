@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { Application, Conversation } from 'nexmo-client';
 import { useNavigate } from 'react-router-dom';
-import { Button, IconButton } from '@mui/material';
+import { Button, CircularProgress, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Box } from '@mui/system';
@@ -9,11 +9,11 @@ import { useState, useEffect, useRef } from 'react';
 import { truncate, uniqBy } from 'lodash';
 import moment from 'moment';
 import { RootState } from '../../store/store';
-import { getUserById, setSelectedUserId, setToken } from '../../store/api/vonage/usersLocalSlice';
+import { getUserById } from '../../store/api/vonage/usersLocalSlice';
 import { saveMessages, loadMessagesByConversationId } from '../../store/api/vonage/messageLocalSlice';
-import { getSelectedConversation, setConversationId } from '../../store/api/vonage/conversationsLocalSlice';
-import './index.css';
+import { getSelectedConversation } from '../../store/api/vonage/conversationsLocalSlice';
 import { useAuth } from '../../hooks/useAuth';
+import './index.css';
 
 const ChatRoom = () => {
   const user = useSelector(getUserById);
@@ -26,11 +26,9 @@ const ChatRoom = () => {
   const currentConversation = useSelector(getSelectedConversation);
   const inputRef = useRef<HTMLInputElement>();
   const messageBoxRef = useRef<HTMLDivElement>();
-  const navigate = useNavigate();
   let typingMessage = useRef('');
-  const { token, logout } = useAuth();
+  const { token, logout, isloading } = useAuth();
 
-  // Handling Typing event
   useEffect(() => {
     if (conversation) {
       inputRef?.current?.addEventListener('keypress', (event) => {
@@ -52,7 +50,9 @@ const ChatRoom = () => {
     }
   }, [conversation]);
 
-  // Updating conversation and logout
+  /**
+   * @description Updating conversation and logout
+   */
   useEffect(() => {
     if (!currentConversation?.id || !user?.id) {
       return logout();
@@ -68,16 +68,22 @@ const ChatRoom = () => {
     }
   }, [currentConversation, user, app, token]);
 
-  // This will be triggered on text event
+  /**
+   *
+   * @param sender Contains sender info
+   * @param message Contains message info
+   * @description This will be triggered on text event under conversation
+   * constructing message object and saving all messages to store
+   */
   const onMessage = (sender, message) => {
     const newMessages = {
-      key: message.id,
-      sender: sender.userName,
-      userId: sender.userId,
-      text: message.body.text,
-      time: message.timestamp,
-      id: message.id,
-      conversationId: currentConversation.id,
+      key: message?.id,
+      sender: sender?.userName,
+      userId: sender?.userId,
+      text: message?.body.text,
+      time: message?.timestamp,
+      id: message?.id,
+      conversationId: currentConversation?.id,
     };
 
     setMessages((prev) => {
@@ -92,6 +98,10 @@ const ChatRoom = () => {
     });
   };
 
+  /**
+   *
+   * @param : InputChangeEvent
+   */
   const handleInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(evt?.target?.value);
   };
@@ -116,12 +126,12 @@ const ChatRoom = () => {
     }
   };
 
+  /**
+   *
+   */
   const handleLogout = () => {
     setConversation(null);
-    dispatch(setConversationId(''));
-    dispatch(setSelectedUserId(''));
-    dispatch(setToken(''));
-    navigate('/');
+    logout();
   };
 
   return (
@@ -150,6 +160,9 @@ const ChatRoom = () => {
         </div>
         <div ref={messageBoxRef} className='messages' id='chat'>
           <div className='time'>Today at {moment().format('HH:mm')}</div>
+          <Box position='absolute' width='90%' display='flex' mt={2} justifyContent='center'>
+            {isloading && <CircularProgress />}
+          </Box>
           {messages.map((message) => {
             if (message?.userId === user?.id)
               return (
@@ -185,7 +198,7 @@ const ChatRoom = () => {
           })}
 
           {/* !Todo not working as expected */}
-          {typingMessage?.current && (
+          {/* {typingMessage?.current && (
             <>
               <span style={{ fontSize: '10px', position: 'relative', top: '16px', left: '20px' }}>
                 {typingMessage.current}
@@ -196,10 +209,11 @@ const ChatRoom = () => {
                 <div className='typing typing-3'></div>
               </div>
             </>
-          )}
+          )} */}
         </div>
         <div className='input'>
           <input
+            disabled={isloading}
             ref={inputRef}
             value={message}
             onChange={handleInputChange}
@@ -207,7 +221,7 @@ const ChatRoom = () => {
             placeholder='Type your message here!'
             type='text'
           />
-          <IconButton onClick={submitMessage}>
+          <IconButton disabled={isloading} onClick={submitMessage}>
             <SendIcon />
           </IconButton>
         </div>

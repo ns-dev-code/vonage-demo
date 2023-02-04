@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Grid } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Button, Grid, CircularProgress } from '@mui/material';
 import styled from '@emotion/styled';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -11,9 +11,8 @@ import {
 import { setConversationId } from '../../store/api/vonage/conversationsLocalSlice';
 
 import { RootState } from '../../store/store';
-import { getUserById, setApp, setToken } from '../../store/api/vonage/usersLocalSlice';
+import { getUserById, setToken } from '../../store/api/vonage/usersLocalSlice';
 import { useGenerateTokenMutation } from '../../store/api/vonage/tokenSlice';
-import NexmoClient from 'nexmo-client';
 import { useAuth } from '../../hooks/useAuth';
 
 const Form = styled.form`
@@ -67,10 +66,8 @@ const CreateConversationForm = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     createConversation({
-      body: {
-        name: name,
-        display_name: name,
-      },
+      name: name,
+      display_name: name,
     });
     setConversationName('');
   };
@@ -84,6 +81,18 @@ const CreateConversationForm = () => {
         onChange={(event) => setConversationName(event.target.value)}
       />
       <StyledButton color='primary' variant='contained' disabled={!name || isLoading} type='submit'>
+        {isLoading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              marginTop: '-12px',
+              marginLeft: '-12px',
+            }}
+          />
+        )}
         Create Conversation
       </StyledButton>
     </Form>
@@ -112,7 +121,7 @@ const ConversationList = ({ conversations, handleConversation, selectedConversat
 };
 
 const ConversationComponent = () => {
-  const { data, isLoading, isError } = useGetConversationsQuery({});
+  const { data, isLoading, isError } = useGetConversationsQuery({ page_size: 100, order: 'asc' });
   const [generateToken, { data: token }] = useGenerateTokenMutation({});
   const dispatch = useDispatch();
   const selectedConversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);

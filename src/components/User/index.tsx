@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, CircularProgress } from '@mui/material';
 import styled from '@emotion/styled';
 import { useCreateUserMutation, useGetUsersQuery } from '../../store/api/vonage/usersSlice';
 import { useSnackbar } from 'notistack';
@@ -43,7 +43,9 @@ const UserItem = styled.li`
   align-items: center;
   margin: 10px;
 `;
-
+/**
+ * @description User Form Componet
+ */
 const CreateUserForm = () => {
   const [username, setUsername] = useState('');
   const { enqueueSnackbar } = useSnackbar();
@@ -61,6 +63,11 @@ const CreateUserForm = () => {
     }
   }, [isSuccess]);
 
+  /**
+   *
+   * @param event
+   * @description Create's user
+   */
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     createUser({
@@ -81,6 +88,18 @@ const CreateUserForm = () => {
         onChange={(event) => setUsername(event.target.value)}
       />
       <StyledButton color='primary' variant='contained' disabled={!username || isLoading} type='submit'>
+        {isLoading && (
+          <CircularProgress
+            size={24}
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              marginTop: '-12px',
+              marginLeft: '-12px',
+            }}
+          />
+        )}
         Create User
       </StyledButton>
     </Form>
@@ -97,6 +116,10 @@ type UserListPageProps = {
   selectedUserId: string;
 };
 
+/**
+ *
+ * @Component to render user's list
+ */
 const UserListPage = ({ users, handleUser, selectedUserId }: UserListPageProps) => {
   return (
     <>
@@ -113,7 +136,7 @@ const UserListPage = ({ users, handleUser, selectedUserId }: UserListPageProps) 
 };
 
 const UserComponent = () => {
-  const { data: users, isLoading, isError } = useGetUsersQuery({ page_size: 10, order: 'asc' });
+  const { data, isLoading, isError } = useGetUsersQuery({ page_size: 100, order: 'asc' });
   const selectedUserId = useSelector((state: RootState) => state.usersLocalSlice.selectedUserId);
   const dispatch = useDispatch();
 
@@ -123,6 +146,7 @@ const UserComponent = () => {
   if (isError) {
     return <h2>Unable to load users.</h2>;
   }
+
   return (
     <Grid container alignItems={'center'} display='flex' direction='column'>
       <UserListPage
@@ -130,10 +154,10 @@ const UserComponent = () => {
         handleUser={(userId) => {
           dispatch(setSelectedUserId(userId));
         }}
-        users={users?.users}
+        users={data?.users}
       />
       {selectedUserId && (
-        <UserItem>{`Connected as : ${users?.users?.find((user) => user?.id === selectedUserId)?.name}`}</UserItem>
+        <UserItem>{`Connected as : ${data?.users?.find((user) => user?.id === selectedUserId)?.name}`}</UserItem>
       )}
       <CreateUserForm />
     </Grid>

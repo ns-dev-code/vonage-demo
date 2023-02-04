@@ -38,16 +38,16 @@ export const {
   selectAll: selectAllConvesations,
   selectById: selectedConversationById,
   selectEntities,
-} = conversationsAdapter.getSelectors((state) => state['conversationsLocalSlice'] ?? initialState);
+} = conversationsAdapter.getSelectors((state: RootState) => state.conversationLocalSlice ?? initialState);
 
 export const { setConversationId } = conversationsLocalSlice.actions;
 
 export const getSelectedConversation = (state: RootState) =>
   createSelector(
     (state: RootState) => {
-      return state.conversationLocalSlice.selectedConversationId;
+      return state?.conversationLocalSlice?.selectedConversationId;
     },
     (id) => {
-      return state.conversationLocalSlice.entities[id];
+      return state?.conversationLocalSlice?.entities[id];
     },
   )(state);

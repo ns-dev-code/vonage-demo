@@ -37,14 +37,14 @@ export const usersLocalSlice = createSlice({
 });
 
 export const { selectAll, selectById, selectEntities } = usersAdapter.getSelectors(
-  (state) => state['usersLocalSlice'] ?? initialState,
+  (state: RootState) => state.usersLocalSlice ?? initialState,
 );
 
 export const getUserById = (state: RootState) =>
   createSelector(
-    (state: RootState) => state.usersLocalSlice.selectedUserId,
+    (state: RootState) => state?.usersLocalSlice?.selectedUserId,
     (id) => {
-      return state.usersLocalSlice.entities[id];
+      return state?.usersLocalSlice?.entities[id];
     },
   )(state);
 export const { setSelectedUserId, setToken, setApp } = usersLocalSlice.actions;

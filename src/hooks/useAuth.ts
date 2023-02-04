@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import NexmoClient from 'nexmo-client';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { RootState } from '../store/store';
 import { useGenerateTokenMutation } from '../store/api/vonage/tokenSlice';
 
 export const useAuth = () => {
+  const [isloading, setLoading] = useState(false);
   const currentUser = useSelector(getUserById);
   const token = useSelector((state: RootState) => state.usersLocalSlice.token);
   const [generateToken, { data: tokenData }] = useGenerateTokenMutation({});
@@ -17,13 +18,16 @@ export const useAuth = () => {
 
   const login = useCallback(async (token: string) => {
     try {
+      setLoading(true);
       let nexmo = new NexmoClient({});
       const app = await nexmo.createSession(token);
       dispatch(setApp(app));
+      setLoading(false);
     } catch (error) {
       generateToken({
         name: currentUser?.name,
       });
+      setLoading(false);
     }
   }, []);
 
@@ -36,9 +40,10 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (tokenData?.jwt || token) {
+      setLoading(true);
       login(tokenData?.jwt || token);
     }
   }, [token, tokenData, login]);
 
-  return { login, logout, token, currentConversation, currentUser };
+  return { isloading, login, logout, token, currentConversation, currentUser };
 };
