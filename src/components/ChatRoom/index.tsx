@@ -1,6 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { Application, Conversation } from 'nexmo-client';
-import { useNavigate } from 'react-router-dom';
 import { Button, CircularProgress, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -143,14 +142,14 @@ const ChatRoom = () => {
       </Box>
       <div className='chat'>
         <div className='header'>
-          <div className='name'>
+          <div>
             Connected as :{' '}
             {truncate(user?.name, {
               length: 10,
               separator: '...',
             })}
           </div>
-          <div className='name'>
+          <div>
             Conversation :{' '}
             {truncate(currentConversation?.name, {
               length: 10,

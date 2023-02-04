@@ -20,14 +20,6 @@ html {
   margin: 10px;
 }
 
-.pic {
-  width: 4rem;
-  height: 4rem;
-  background-size: cover;
-  background-position: center;
-  border-radius: 50%;
-}
-
 .header {
   position: relative;
   margin-bottom: 1rem;
@@ -48,54 +40,6 @@ html {
   font-size: 0.9rem;
   color: #999;
 }
-.header .badge {
-  box-sizing: border-box;
-  position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  padding-top: 0.125rem;
-  border-radius: 1rem;
-  top: 0;
-  left: 2.5rem;
-  background: #333;
-  color: white;
-}
-
-.headers {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translate(-6rem, -50%);
-  width: 24rem;
-  height: 32rem;
-  padding: 1rem 2rem 1rem 1rem;
-  box-sizing: border-box;
-  border-radius: 1rem 0 0 1rem;
-  cursor: pointer;
-  background: white;
-  box-shadow: 0 0 8rem 0 rgba(0, 0, 0, 0.1), 2rem 2rem 4rem -3rem rgba(0, 0, 0, 0.5);
-  transition: transform 500ms;
-}
-.headers h2 {
-  margin: 0.5rem 0 1.5rem 5rem;
-}
-.headers .fa-bars {
-  position: absolute;
-  left: 2.25rem;
-  color: #999;
-  transition: color 200ms;
-}
-.headers .fa-bars:hover {
-  color: #666;
-}
-.headers .header:last-child {
-  margin: 0;
-}
-.headers:hover {
-  transform: translate(-23rem, -50%);
-}
 
 .chat {
   max-width: inherit;
@@ -111,12 +55,7 @@ html {
   background: white;
   box-shadow: 0 0 8rem 0 rgba(0, 0, 0, 0.1), 0rem 2rem 4rem -3rem rgba(0, 0, 0, 0.5);
 }
-.chat .header.bar {
-  flex-basis: 3.5rem;
-  flex-shrink: 0;
-  margin: 1rem;
-  box-sizing: border-box;
-}
+
 .chat .messages {
   min-height: 500px;
   padding: 1rem;
@@ -185,16 +124,7 @@ html {
   align-items: center;
   padding: 0 0.5rem 0 1.5rem;
 }
-.chat .input i {
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  color: #666;
-  cursor: pointer;
-  transition: color 200ms;
-}
-.chat .input i:hover {
-  color: #333;
-}
+
 .chat .input input {
   border: none;
   background-image: none;
