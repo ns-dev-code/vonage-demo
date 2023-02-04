@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import './App.css';
 import UserComponent from './components/User';
 import ConversationComponent from './components/Conversation';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import { useSnackbar } from 'notistack';
 
 function App() {
-  const userId = useSelector((state: RootState) => state.usersLocalSlice.selectedUserId);
+  const userId = useSelector((state: RootState) => state?.usersLocalSlice?.selectedUserId);
+  const token = useSelector((state: RootState) => state?.usersLocalSlice?.token);
   const conversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);
   const location = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const { login, isloading } = useAuth();
 
-  const handleProceed = (): void => {
-    location('/chat-room');
-  };
+  const handleLogin = useCallback((): void => {
+    login(token)
+      .then(() => {
+        location('/chat-room');
+      })
+      .catch((err) => {
+        enqueueSnackbar('Unable to login, please try again !', {
+          variant: 'error',
+        });
+      });
+  }, [token]);
 
   return (
     <div className='App'>
@@ -24,7 +37,19 @@ function App() {
       <UserComponent />
       <ConversationComponent />
       {userId && conversationId && (
-        <Button onClick={handleProceed} variant='outlined'>
+        <Button onClick={handleLogin} variant='outlined'>
+          {isloading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
           Login
         </Button>
       )}

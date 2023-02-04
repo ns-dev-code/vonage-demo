@@ -126,7 +126,6 @@ const ConversationComponent = () => {
   const dispatch = useDispatch();
   const selectedConversationId = useSelector((state: RootState) => state.conversationLocalSlice.selectedConversationId);
   const selecteduser = useSelector(getUserById);
-  const { login } = useAuth();
 
   // Generate Token for user
   useEffect(() => {
@@ -140,7 +139,6 @@ const ConversationComponent = () => {
   useEffect(() => {
     if (token) {
       dispatch(setToken(token?.jwt));
-      login(token?.jwt);
     }
   }, [token?.jwt]);
 
