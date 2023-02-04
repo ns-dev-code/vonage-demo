@@ -14,6 +14,12 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
+### `.env`
+
+Add base url to REACT_APP_BASE_URL = https://backend-production-399a.up.railway.app/
+Or Run the node backend code set base url accordingly.
+Backend deployed to Railway App.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
